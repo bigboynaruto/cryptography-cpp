@@ -59,6 +59,7 @@ class Long {
         static Long sqrt(const Long&);
         Long powmod(const Long&, const Long&) const;
         static Long gcd(const Long&, const Long&);
+        static Long gcd(const Long&, const Long&, Long&, Long&);
         static Long lcm(const Long&, const Long&);
         Long log2() const;
         Long mod2() const;
@@ -175,6 +176,7 @@ class Random {
     public:
 
         static T seed();
+        static void seed(T);
 
         static Long next();
         static Long next(const Long&, const Long&);

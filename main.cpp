@@ -12,8 +12,10 @@ void primality_test();
 void factorization();
 void dlog();
 void crypto();
+void diffie_hellman();
 
 int main() {
+    Random::seed(time(NULL));
     string opt;
     do {
         cout << "1. Arithmetics" << endl
@@ -25,6 +27,7 @@ int main() {
             << "7. Factorization" << endl
             << "8. Discrete logarithm" << endl
             << "9. Cryptography" << endl
+            << "d. Diffie-Hellman" << endl
             << "*. Exit" << endl
             << "=========================" << endl
             << "> ";
@@ -57,6 +60,9 @@ int main() {
                 break;
             case '9':
                 crypto();
+                break;
+            case 'd':
+                diffie_hellman();
                 break;
             default:
                 opt = "q";
@@ -106,7 +112,10 @@ void arithmetics() {
     getline(cin, s1);
     if (s1 == "y" || s1 == "Y") {
         try {
-            cout << "gcd(" << n1 << ", " << n2 << ") = " << Long::gcd(n1, n2) << endl;
+            Long x, y;
+            Long d = Long::gcd(n1, n2, x, y);
+            cout << "gcd(" << n1 << ", " << n2 << ") = " << d << endl;
+            cout << n1 << " * " << x << " + " << n2 << " * " << y << " = " << n1*x+n2*y << endl;
         }
         catch (LongException e) {
             cout << "ERROR: " << e.what() << endl;
@@ -307,4 +316,31 @@ void crypto() {
     else {
         cout << "ERROR: Invalid option." << endl;
     }
+}
+
+void diffie_hellman() {
+    
+    cout << "Generating prime P... " << flush;
+    Long P = Random::next_prime(2);//23;
+    cout << "Done." << flush << endl;
+
+    cout << "Finding a primitive root for " << P << "... " << flush;
+    Long G = Long::primitive_root(P);//9;
+    cout << "Done." << flush << endl;
+
+    cout << "P = " << P << ", G = " << G << endl;
+
+    string line;
+    cout << "Alice's private key> ";
+    getline(cin, line);
+    Long a(line), x = G.powmod(a, P);
+    cout << "Alice's public key: " << x << endl;
+
+    cout << "Bob's private key> ";
+    getline(cin, line);
+    Long b(line), y = G.powmod(b, P);
+    cout << "Bob's public key: " << y << endl;
+    
+    Long ka = y.powmod(a, P), kb = x.powmod(b, P);
+    cout << "Symmetric keys: " << ka << " and " << kb << endl;
 }

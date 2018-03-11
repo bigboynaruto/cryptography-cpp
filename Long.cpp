@@ -513,6 +513,18 @@ Long Long::gcd(const Long &l1, const Long &l2) {
     return odd_step ? res1.normalize() : res2.normalize();
 }
 
+Long Long::gcd(const Long &l1, const Long &l2, Long &x, Long &y) {
+    if (l1.is_zero()) {
+        x = ZERO; y = ONE;
+        return l2;
+    }
+
+    Long d = gcd(l2 % l1, l1, y, x);
+    x = x - (l2 / l1) * y;
+    
+    return d;
+}
+
 Long Long::lcm(const Long &l1, const Long &l2) {
     return (l1 / gcd(l1, l2) * l2).abs();
 }
@@ -867,6 +879,15 @@ deque<Long> Long::rho_pollard_factorization() const {
     set<reference_wrapper<Long>, refs_less> unique_factors;
     Long n = this->abs();
 
+    Long TWENTY4 = 24;
+    for (Long d = TWO; d < TWENTY4 && ONE < d; ++d) {
+        if (n.is_divisible_by(d)) {
+            while (!n.is_zero() && n.is_divisible_by(d))
+                n = n / d;
+            factors.push_back(d);
+        }
+    }
+
     if (n <= ONE)
         return factors;
 
@@ -895,7 +916,7 @@ deque<Long> Long::rho_pollard_factorization() const {
 
         if (d == n) {
             // failure
-            x = Random::next(n._num.size() + 1) % (n - THREE) + TWO;
+            x = Random::next(n._num.size() + 1) % (n - THREE) + TWENTY4;//TWO;
         }
         else {
             auto d_factors = d.rho_pollard_factorization();
@@ -1193,7 +1214,11 @@ bool Long::solovay_strassen_test(Long k) const {
 T Random::_seed = 100;
 
 T Random::seed() {
-    return 0;
+    return _seed;
+}
+
+void Random::seed(T val) {
+    _seed = val;
 }
 
 Long Random::next() {
